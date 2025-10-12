@@ -1,2 +1,0 @@
-export { CalculateButton } from './CalculateButton';
-

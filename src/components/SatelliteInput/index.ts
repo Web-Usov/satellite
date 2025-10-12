@@ -1,2 +1,0 @@
-export { SatelliteInput } from './SatelliteInput';
-
