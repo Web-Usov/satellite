@@ -1,7 +1,5 @@
 export const APP_CONFIG = {
-  API_BASE_URL: import.meta.env.DEV 
-    ? '/api/n2yo' 
-    : '/api/satellite',
+  API_BASE_URL: import.meta.env.VITE_BACKEND_API_URL || '/api/satellite',
   API_TIMEOUT: 10000,
   API_DELAY_MS: 100,
   API_REQUESTS_PER_HOUR: 100,

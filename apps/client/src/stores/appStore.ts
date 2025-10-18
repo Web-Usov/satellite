@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist, devtools } from 'zustand/middleware';
-import type { Satellite, GroundStation, StationSchedule } from '../types';
+import type { Satellite, GroundStation, StationSchedule, CalculationMode } from '../types';
 import { LOCAL_STORAGE_KEYS, APP_CONFIG } from '../constants';
 
 interface AppState {
@@ -8,6 +8,7 @@ interface AppState {
   stations: GroundStation[];
   schedules: StationSchedule[];
   days: number;
+  calculationMode: CalculationMode;
   isCalculating: boolean;
   error: string | null;
   progress: number;
@@ -24,6 +25,7 @@ interface AppState {
   clearStations: () => void;
   
   setDays: (days: number) => void;
+  setCalculationMode: (mode: CalculationMode) => void;
   
   setSchedules: (schedules: StationSchedule[]) => void;
   clearSchedules: () => void;
@@ -42,6 +44,7 @@ export const useAppStore = create<AppState>()(
         stations: [],
         schedules: [],
         days: APP_CONFIG.DEFAULT_DAYS,
+        calculationMode: 'api-tle' as CalculationMode,
         isCalculating: false,
         error: null,
         progress: 0,
@@ -78,6 +81,7 @@ export const useAppStore = create<AppState>()(
         clearStations: () => set({ stations: [] }),
 
         setDays: (days) => set({ days }),
+        setCalculationMode: (mode) => set({ calculationMode: mode }),
 
         setSchedules: (schedules) => set({ schedules }),
         clearSchedules: () => set({ schedules: [] }),

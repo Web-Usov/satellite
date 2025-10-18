@@ -28,10 +28,21 @@ fi
 # Конфигурация
 DOCKER_USERNAME="webusov"
 IMAGE_NAME="satellite-server"
-VERSION="1.0.0"
+PACKAGE_JSON="$PROJECT_ROOT/apps/server/package.json"
 DOCKERFILE="$PROJECT_ROOT/apps/server/Dockerfile"
 CONTEXT="$PROJECT_ROOT/apps/server"
 FULL_IMAGE="${DOCKER_USERNAME}/${IMAGE_NAME}"
+
+if [[ ! -f "$PACKAGE_JSON" ]]; then
+    echo -e "${RED}❌ Ошибка: не найден package.json${NC}"
+    exit 1
+fi
+
+VERSION=$(grep -oP '(?<="version":\s")[^"]+' "$PACKAGE_JSON")
+if [[ -z "$VERSION" ]]; then
+    echo -e "${RED}❌ Ошибка: не удалось прочитать версию из package.json${NC}"
+    exit 1
+fi
 
 echo -e "${GREEN}🚀 Сборка и публикация Proxy Server образа${NC}"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"

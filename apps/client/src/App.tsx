@@ -7,6 +7,7 @@ import {
   CalculateButton,
   StationSchedule,
   ApiLimitIndicator,
+  ModeSelector,
 } from './components';
 
 const theme = createTheme({
@@ -56,6 +57,7 @@ function App() {
             gap={3}
             sx={{ minWidth: 0 }}
           >
+            <ModeSelector />
             <SatelliteInput />
             <StationInput />
             <CalculateButton />

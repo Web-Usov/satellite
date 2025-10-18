@@ -2,7 +2,7 @@
   "name": "client",
   "description": "Satellite Pass Predictor - Frontend Client",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.2.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -24,6 +24,7 @@
     "dayjs": "^1.11.18",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "satellite.js": "^6.0.1",
     "zustand": "^5.0.8"
   },
   "devDependencies": {
@@ -41,4 +42,3 @@
     "vite": "^7.1.7"
   }
 }
-

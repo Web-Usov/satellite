@@ -4,10 +4,8 @@ export interface PassData {
   endUTC: number;
   maxEl: number;
   startAz: number;
-  maxAz: number;
   endAz: number;
   startAzCompass: string;
-  maxAzCompass: string;
   endAzCompass: string;
   satelliteName?: string;
   stationId?: string;

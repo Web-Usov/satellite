@@ -10,6 +10,15 @@ export interface N2YOPassResponse {
   passes: PassData[];
 }
 
+export interface N2YOTLEResponse {
+  info: {
+    satid: number;
+    satname: string;
+    transactionscount: number;
+  };
+  tle: string;
+}
+
 export interface ApiError {
   message: string;
   statusCode?: number;

@@ -6,15 +6,15 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 
 export const formatTimestamp = (timestamp: number): string => {
-  return dayjs.unix(timestamp).format('YYYY-MM-DD HH:mm:ss');
+  return dayjs.unix(timestamp).utc().format('YYYY-MM-DD HH:mm:ss');
 };
 
 export const formatDate = (timestamp: number): string => {
-  return dayjs.unix(timestamp).format('YYYY-MM-DD');
+  return dayjs.unix(timestamp).utc().format('YYYY-MM-DD');
 };
 
 export const formatTime = (timestamp: number): string => {
-  return dayjs.unix(timestamp).format('HH:mm:ss');
+  return dayjs.unix(timestamp).utc().format('HH:mm:ss');
 };
 
 export const formatDuration = (startTimestamp: number, endTimestamp: number): string => {

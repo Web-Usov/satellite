@@ -18,12 +18,15 @@ COPY apps/client/package.json ./apps/client/
 # Устанавливаем зависимости
 RUN pnpm install --frozen-lockfile
 
+# Копируем .env.prod как .env для production сборки
+COPY .env.prod ./.env
+
 # Копируем исходники клиента
 COPY apps/client ./apps/client/
 
 # Собираем
 WORKDIR /workspace/apps/client
-RUN pnpm build
+RUN pnpm build --mode prod
 
 # Production stage
 FROM nginx:alpine

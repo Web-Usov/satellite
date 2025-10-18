@@ -28,10 +28,21 @@ fi
 # Конфигурация
 DOCKER_USERNAME="webusov"
 IMAGE_NAME="satellite-client"
-VERSION="1.0.0"
+PACKAGE_JSON="$PROJECT_ROOT/apps/client/package.json"
 DOCKERFILE="$PROJECT_ROOT/apps/client/Dockerfile"
 CONTEXT="$PROJECT_ROOT"
 FULL_IMAGE="${DOCKER_USERNAME}/${IMAGE_NAME}"
+
+if [[ ! -f "$PACKAGE_JSON" ]]; then
+    echo -e "${RED}❌ Ошибка: не найден package.json${NC}"
+    exit 1
+fi
+
+VERSION=$(grep -oP '(?<="version":\s")[^"]+' "$PACKAGE_JSON")
+if [[ -z "$VERSION" ]]; then
+    echo -e "${RED}❌ Ошибка: не удалось прочитать версию из package.json${NC}"
+    exit 1
+fi
 
 echo -e "${GREEN}🚀 Сборка и публикация Frontend образа${NC}"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -53,6 +64,16 @@ if ! grep -q "index.docker.io" ~/.docker/config.json 2>/dev/null; then
     exit 1
 fi
 echo -e "${GREEN}✅ Авторизация подтверждена${NC}"
+
+# Проверка .env.prod
+echo -e "\n${YELLOW}📋 Проверка .env.prod...${NC}"
+ENV_PROD_FILE="${PROJECT_ROOT}/.env.prod"
+if [[ ! -f "$ENV_PROD_FILE" ]]; then
+    echo -e "${RED}❌ Ошибка: не найден файл .env.prod${NC}"
+    echo -e "${YELLOW}Создайте файл .env.prod в корне проекта${NC}"
+    exit 1
+fi
+echo -e "${GREEN}✅ Файл .env.prod найден${NC}"
 
 # Сборка образа
 echo -e "\n${YELLOW}🔨 Сборка образа...${NC}"

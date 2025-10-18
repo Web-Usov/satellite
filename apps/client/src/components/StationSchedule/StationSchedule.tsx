@@ -37,21 +37,21 @@ export const StationSchedule = () => {
     },
     {
       field: 'startUTC',
-      headerName: 'Начало',
+      headerName: 'Начало (UTC)',
       flex: 1,
       minWidth: 160,
       valueFormatter: (value) => formatTimestamp(value),
     },
     {
       field: 'maxUTC',
-      headerName: 'Максимум',
+      headerName: 'Максимум (UTC)',
       flex: 1,
       minWidth: 80,
       valueFormatter: (value) => formatTime(value),
     },
     {
       field: 'endUTC',
-      headerName: 'Окончание',
+      headerName: 'Окончание (UTC)',
       flex: 1,
       minWidth: 80,
       valueFormatter: (value) => formatTime(value),
@@ -73,12 +73,6 @@ export const StationSchedule = () => {
       headerName: 'Азимут начала',
       width: 140,
       valueGetter: (_, row) => formatAzimuth(row.startAz, row.startAzCompass),
-    },
-    {
-      field: 'maxAz',
-      headerName: 'Азимут макс.',
-      width: 140,
-      valueGetter: (_, row) => formatAzimuth(row.maxAz, row.maxAzCompass),
     },
     {
       field: 'endAz',

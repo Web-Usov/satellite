@@ -20,6 +20,7 @@ export const CalculateButton = () => {
   const satellites = useAppStore((state) => state.satellites);
   const stations = useAppStore((state) => state.stations);
   const days = useAppStore((state) => state.days);
+  const calculationMode = useAppStore((state) => state.calculationMode);
   const isCalculating = useAppStore((state) => state.isCalculating);
   const progress = useAppStore((state) => state.progress);
   const totalRequests = useAppStore((state) => state.totalRequests);
@@ -55,6 +56,7 @@ export const CalculateButton = () => {
         noradIds,
         stations,
         days,
+        calculationMode,
         (current, total) => {
           setProgress(current, total);
         },
@@ -140,8 +142,21 @@ export const CalculateButton = () => {
       )}
 
       <Typography variant="caption" color="text.secondary" sx={{ mt: 2, display: 'block' }}>
-        Будет выполнено {satellites.length} × {stations.length} ={' '}
-        {satellites.length * stations.length} запросов к API
+        {calculationMode === 'api-tle' && (
+          <>
+            API TLE: {satellites.length} TLE запросов + локальные расчеты ({satellites.length} × {stations.length})
+          </>
+        )}
+        {calculationMode === 'api-radio' && (
+          <>
+            API Radio: {satellites.length} × {stations.length} = {satellites.length * stations.length} запросов к API
+          </>
+        )}
+        {calculationMode === 'input-tle' && (
+          <>
+            Input TLE: только локальные расчеты (скоро)
+          </>
+        )}
       </Typography>
     </Paper>
   );
