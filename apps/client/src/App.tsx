@@ -4,11 +4,13 @@ import SatelliteAltIcon from '@mui/icons-material/SatelliteAlt';
 import {
   SatelliteInput,
   StationInput,
+  TLEInput,
   CalculateButton,
   StationSchedule,
   ApiLimitIndicator,
   ModeSelector,
 } from './components';
+import { useAppStore } from './stores';
 
 const theme = createTheme({
   palette: {
@@ -26,10 +28,12 @@ const theme = createTheme({
 });
 
 function App() {
+  const calculationMode = useAppStore((state) => state.calculationMode);
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      
+
       <AppBar position="static" elevation={2}>
         <Toolbar>
           <SatelliteAltIcon sx={{ mr: 2 }} />
@@ -44,26 +48,30 @@ function App() {
         <Box
           sx={{
             display: 'grid',
-            gridTemplateColumns: { 
-              xs: '1fr', 
-              md: 'minmax(380px, 420px) 1fr' 
+            gridTemplateColumns: {
+              xs: '1fr',
+              md: 'minmax(380px, 420px) 1fr'
             },
             gap: 3,
           }}
         >
-          <Box 
-            display="flex" 
-            flexDirection="column" 
+          <Box
+            display="flex"
+            flexDirection="column"
             gap={3}
             sx={{ minWidth: 0 }}
           >
             <ModeSelector />
-            <SatelliteInput />
+            {calculationMode === 'input-tle' ? (
+              <TLEInput />
+            ) : (
+              <SatelliteInput />
+            )}
             <StationInput />
             <CalculateButton />
           </Box>
 
-          <Box sx={{ minWidth: 0,  }}>
+          <Box sx={{ minWidth: 0, }}>
             <StationSchedule />
           </Box>
         </Box>

@@ -230,11 +230,69 @@ class N2YOClient {
     return passesMap;
   }
 
+  async getAllPassesWithInputTle(
+    userTLEs: Array<{ id: string; name: string; line1: string; line2: string }>,
+    stations: GroundStation[],
+    days: number,
+    onProgress?: (current: number, total: number) => void
+  ): Promise<Map<string, PassData[]>> {
+    const totalSteps = userTLEs.length * stations.length;
+    let currentStep = 0;
+
+    const passesMap = new Map<string, PassData[]>();
+
+    for (const station of stations) {
+      passesMap.set(station.id, []);
+    }
+
+    for (const userTLE of userTLEs) {
+      for (const station of stations) {
+        try {
+          const passes = calculateSatellitePasses(
+            userTLE.line1,
+            userTLE.line2,
+            station,
+            days
+          );
+
+          const enrichedPasses = passes.map((pass) => ({
+            ...pass,
+            satelliteName: userTLE.name,
+            stationId: station.id,
+            stationName: station.name,
+          }));
+
+          const existingPasses = passesMap.get(station.id) || [];
+          passesMap.set(station.id, [...existingPasses, ...enrichedPasses]);
+
+          currentStep++;
+          if (onProgress) {
+            onProgress(currentStep, totalSteps);
+          }
+        } catch (error) {
+          console.error(`Ошибка при расчете проходов для TLE "${userTLE.name}" над станцией ${station.name}:`, error);
+          currentStep++;
+          if (onProgress) {
+            onProgress(currentStep, totalSteps);
+          }
+        }
+      }
+    }
+
+    for (const [stationId, passes] of passesMap) {
+      const sortedPasses = passes.sort((a, b) => a.startUTC - b.startUTC);
+      passesMap.set(stationId, sortedPasses);
+    }
+
+    return passesMap;
+  }
+
   async getAllPasses(
     noradIds: number[],
     stations: GroundStation[],
     days: number,
     mode: CalculationMode,
+    userTLEs?: Array<{ id: string; name: string; line1: string; line2: string }>,
     onProgress?: (current: number, total: number) => void,
     onTransactionUpdate?: (count: number) => void
   ): Promise<Map<string, PassData[]>> {
@@ -244,7 +302,10 @@ class N2YOClient {
       case 'api-radio':
         return this.getAllPassesWithApiRadio(noradIds, stations, days, onProgress, onTransactionUpdate);
       case 'input-tle':
-        throw new Error('Input TLE mode не реализован');
+        if (!userTLEs || userTLEs.length === 0) {
+          throw new Error('Добавьте TLE данные для расчета');
+        }
+        return this.getAllPassesWithInputTle(userTLEs, stations, days, onProgress);
       default:
         throw new Error(`Неизвестный режим расчета: ${mode}`);
     }

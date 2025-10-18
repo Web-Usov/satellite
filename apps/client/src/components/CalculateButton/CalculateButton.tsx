@@ -19,6 +19,7 @@ export const CalculateButton = () => {
 
   const satellites = useAppStore((state) => state.satellites);
   const stations = useAppStore((state) => state.stations);
+  const userTLEs = useAppStore((state) => state.userTLEs);
   const days = useAppStore((state) => state.days);
   const calculationMode = useAppStore((state) => state.calculationMode);
   const isCalculating = useAppStore((state) => state.isCalculating);
@@ -34,9 +35,16 @@ export const CalculateButton = () => {
   const updateApiTransactions = useAppStore((state) => state.updateApiTransactions);
 
   const handleCalculate = async () => {
-    if (satellites.length === 0) {
-      setLocalError('Добавьте хотя бы один спутник');
-      return;
+    if (calculationMode === 'input-tle') {
+      if (userTLEs.length === 0) {
+        setLocalError('Добавьте хотя бы один TLE');
+        return;
+      }
+    } else {
+      if (satellites.length === 0) {
+        setLocalError('Добавьте хотя бы один спутник');
+        return;
+      }
     }
 
     if (stations.length === 0) {
@@ -47,16 +55,19 @@ export const CalculateButton = () => {
     setLocalError(null);
     setError(null);
     setCalculating(true);
-    setProgress(0, satellites.length * stations.length);
+
+    const sourceCount = calculationMode === 'input-tle' ? userTLEs.length : satellites.length;
+    setProgress(0, sourceCount * stations.length);
 
     try {
       const noradIds = satellites.map((s) => s.noradId);
-      
+
       const passesMap = await n2yoClient.getAllPasses(
         noradIds,
         stations,
         days,
         calculationMode,
+        userTLEs,
         (current, total) => {
           setProgress(current, total);
         },
@@ -85,6 +96,11 @@ export const CalculateButton = () => {
   };
 
   const progressPercent = totalRequests > 0 ? (progress / totalRequests) * 100 : 0;
+
+  const sourceCount = calculationMode === 'input-tle' ? userTLEs.length : satellites.length;
+  const canCalculate = calculationMode === 'input-tle'
+    ? userTLEs.length > 0 && stations.length > 0
+    : satellites.length > 0 && stations.length > 0;
 
   return (
     <Paper sx={{ p: 3 }}>
@@ -125,7 +141,7 @@ export const CalculateButton = () => {
         size="large"
         startIcon={<CalculateIcon />}
         onClick={handleCalculate}
-        disabled={isCalculating || satellites.length === 0 || stations.length === 0}
+        disabled={isCalculating || !canCalculate}
       >
         {isCalculating
           ? `Расчет... (${progress}/${totalRequests})`
@@ -154,7 +170,7 @@ export const CalculateButton = () => {
         )}
         {calculationMode === 'input-tle' && (
           <>
-            Input TLE: только локальные расчеты (скоро)
+            Input TLE: только локальные расчеты ({userTLEs.length} × {stations.length} = {userTLEs.length * stations.length})
           </>
         )}
       </Typography>

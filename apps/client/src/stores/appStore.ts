@@ -1,12 +1,13 @@
 import { create } from 'zustand';
 import { persist, devtools } from 'zustand/middleware';
-import type { Satellite, GroundStation, StationSchedule, CalculationMode } from '../types';
+import type { Satellite, GroundStation, StationSchedule, CalculationMode, UserTLE } from '../types';
 import { LOCAL_STORAGE_KEYS, APP_CONFIG } from '../constants';
 
 interface AppState {
   satellites: Satellite[];
   stations: GroundStation[];
   schedules: StationSchedule[];
+  userTLEs: UserTLE[];
   days: number;
   calculationMode: CalculationMode;
   isCalculating: boolean;
@@ -23,6 +24,11 @@ interface AppState {
   addStation: (station: GroundStation) => void;
   removeStation: (id: string) => void;
   clearStations: () => void;
+
+  addUserTLE: (tle: UserTLE) => void;
+  updateUserTLE: (id: string, tle: Partial<UserTLE>) => void;
+  removeUserTLE: (id: string) => void;
+  clearUserTLEs: () => void;
   
   setDays: (days: number) => void;
   setCalculationMode: (mode: CalculationMode) => void;
@@ -43,6 +49,7 @@ export const useAppStore = create<AppState>()(
         satellites: [],
         stations: [],
         schedules: [],
+        userTLEs: [],
         days: APP_CONFIG.DEFAULT_DAYS,
         calculationMode: 'api-tle' as CalculationMode,
         isCalculating: false,
@@ -80,6 +87,27 @@ export const useAppStore = create<AppState>()(
 
         clearStations: () => set({ stations: [] }),
 
+        addUserTLE: (tle) =>
+          set((state) => {
+            const exists = state.userTLEs.some((t) => t.id === tle.id);
+            if (exists) return state;
+            return { userTLEs: [...state.userTLEs, tle] };
+          }),
+
+        updateUserTLE: (id, updates) =>
+          set((state) => ({
+            userTLEs: state.userTLEs.map((t) =>
+              t.id === id ? { ...t, ...updates } : t
+            ),
+          })),
+
+        removeUserTLE: (id) =>
+          set((state) => ({
+            userTLEs: state.userTLEs.filter((t) => t.id !== id),
+          })),
+
+        clearUserTLEs: () => set({ userTLEs: [] }),
+
         setDays: (days) => set({ days }),
         setCalculationMode: (mode) => set({ calculationMode: mode }),
 
@@ -101,7 +129,9 @@ export const useAppStore = create<AppState>()(
         partialize: (state) => ({
           satellites: state.satellites,
           stations: state.stations,
+          userTLEs: state.userTLEs,
           days: state.days,
+          calculationMode: state.calculationMode,
           apiTransactionsCount: state.apiTransactionsCount,
           apiTransactionsTimestamp: state.apiTransactionsTimestamp,
         }),

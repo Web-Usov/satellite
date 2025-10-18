@@ -7,8 +7,13 @@ import {
   AccordionSummary,
   AccordionDetails,
   Chip,
+  Button,
+  IconButton,
+  Tooltip,
+  Stack,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { DataGrid, type GridColDef } from '@mui/x-data-grid';
 import { useAppStore } from '../../stores';
 import {
@@ -18,14 +23,49 @@ import {
   formatAzimuth,
   formatDuration,
 } from '../../services/utils';
-import type { PassData } from '../../types';
+import { exportManager } from '../../services/export';
+import type { PassData, StationSchedule as StationScheduleType } from '../../types';
 
 export const StationSchedule = () => {
   const schedules = useAppStore((state) => state.schedules);
   const [expandedPanel, setExpandedPanel] = useState<string | false>(false);
+  const [exporting, setExporting] = useState(false);
 
   const handleChange = (panel: string) => (_: React.SyntheticEvent, isExpanded: boolean) => {
     setExpandedPanel(isExpanded ? panel : false);
+  };
+
+  const handleExportAll = async () => {
+    setExporting(true);
+    try {
+      const result = await exportManager.export('csv', schedules);
+      if (!result.success) {
+        console.error('Export failed:', result.error);
+        alert(`Ошибка экспорта: ${result.error}`);
+      }
+    } catch (error) {
+      console.error('Export error:', error);
+      alert('Ошибка при экспорте данных');
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const handleExportStation = async (schedule: StationScheduleType, event: React.MouseEvent) => {
+    event.stopPropagation();
+    setExporting(true);
+    try {
+      const result = await exportManager.exportSingleStation('csv', schedule);
+      if (!result.success) {
+        console.error('Export failed:', result.error);
+        alert(`Ошибка экспорта: ${result.error}`);
+      }
+    } catch (error) {
+      console.error('Export error:', error);
+      alert('Ошибка при экспорте данных');
+    } finally {
+      setExporting(false);
+    }
   };
 
   const columns: GridColDef<PassData>[] = [
@@ -97,9 +137,20 @@ export const StationSchedule = () => {
 
   return (
     <Paper sx={{ p: 3 }}>
-      <Typography variant="h6" gutterBottom>
-        Расписание проходов
-      </Typography>
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+        <Typography variant="h6">
+          Расписание проходов
+        </Typography>
+        <Button
+          variant="outlined"
+          startIcon={<FileDownloadIcon />}
+          onClick={handleExportAll}
+          disabled={exporting || schedules.length === 0}
+          size="small"
+        >
+          Экспорт CSV
+        </Button>
+      </Box>
 
       {schedules.map((schedule) => (
         <Accordion
@@ -109,16 +160,28 @@ export const StationSchedule = () => {
           sx={{ mb: 1 }}
         >
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Box display="flex" alignItems="center" gap={2}>
-              <Typography variant="subtitle1" fontWeight="bold">
-                {schedule.stationName}
-              </Typography>
-              <Chip
-                label={`${schedule.passes.length} проходов`}
-                size="small"
-                color="primary"
-                variant="outlined"
-              />
+            <Box display="flex" alignItems="center" justifyContent="space-between" width="100%">
+              <Box display="flex" alignItems="center" gap={2}>
+                <Typography variant="subtitle1" fontWeight="bold">
+                  {schedule.stationName}
+                </Typography>
+                <Chip
+                  label={`${schedule.passes.length} проходов`}
+                  size="small"
+                  color="primary"
+                  variant="outlined"
+                />
+              </Box>
+              <Tooltip title="Экспортировать эту станцию">
+                <IconButton
+                  size="small"
+                  onClick={(e) => handleExportStation(schedule, e)}
+                  disabled={exporting}
+                  sx={{ mr: 1 }}
+                >
+                  <FileDownloadIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
             </Box>
           </AccordionSummary>
           <AccordionDetails>

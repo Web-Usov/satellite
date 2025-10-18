@@ -1,4 +1,4 @@
-export type { Satellite } from './satellite';
+export type { Satellite, UserTLE } from './satellite';
 export type { GroundStation } from './station';
 export type { PassData, StationSchedule } from './pass';
 export type { N2YOPassResponse, N2YOTLEResponse, ApiError } from './api';

@@ -23,8 +23,8 @@ export const CALCULATION_MODES: CalculationModeInfo[] = [
   {
     id: 'input-tle',
     name: 'Input TLE',
-    description: 'Ручной ввод TLE (скоро)',
-    enabled: false,
+    description: 'Ручной ввод TLE для оффлайн расчетов',
+    enabled: true,
   },
 ];
 
