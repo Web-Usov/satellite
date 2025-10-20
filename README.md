@@ -441,6 +441,35 @@ docker system prune -a    # Очистка Docker
 
 ---
 
+## 🚀 Релизы
+
+### Текущая версия: v1.3.1
+
+**Последние релизы:**
+- [v1.3.1](https://github.com/web-usov/satellite-pass-predictor/releases/tag/v1.3.1) - MIT License + Scoped packages
+- [v1.3.0](https://github.com/web-usov/satellite-pass-predictor/releases/tag/v1.3.0) - Input TLE режим + CSV экспорт
+- [v1.2.0](https://github.com/web-usov/satellite-pass-predictor/releases/tag/v1.2.0) - Улучшенная точность расчетов
+- [v1.1.0](https://github.com/web-usov/satellite-pass-predictor/releases/tag/v1.1.0) - Локальные расчеты орбит
+- [v1.0.0](https://github.com/web-usov/satellite-pass-predictor/releases/tag/v1.0.0) - Первый релиз
+
+### Создание нового релиза
+
+1. **Обновите версии** в package.json файлах
+2. **Добавьте изменения** в CHANGELOG.md
+3. **Создайте git tag**:
+   ```bash
+   git tag -a v1.4.0 -m "Release v1.4.0: Описание изменений"
+   git push origin v1.4.0
+   ```
+4. **Создайте релиз** на GitHub:
+   - Перейдите в раздел "Releases" на GitHub
+   - Нажмите "Create a new release"
+   - Выберите созданный tag
+   - Добавьте описание из CHANGELOG.md
+   - Прикрепите файлы (опционально)
+
+---
+
 **Monorepo структура готова! 🚀**
 
 Запустите:
