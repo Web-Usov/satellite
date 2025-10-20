@@ -1,8 +1,9 @@
 {
-  "name": "client",
-  "description": "Satellite Pass Predictor - Frontend Client",
-  "private": true,
+  "name": "@satellite/client",
+  "description": "Satellite Pass Predictor - Client",
   "version": "1.3.1",
+  "license": "MIT",
+  "author": "Alex Usov <web.usov@ya.ru>",
   "type": "module",
   "scripts": {
     "dev": "vite",

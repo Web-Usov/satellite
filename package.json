@@ -1,8 +1,9 @@
 {
-  "name": "satellite-pass-predictor",
+  "name": "@satellite/monorepo",
   "description": "Прогнозирование проходов спутников над наземными станциями - Monorepo",
-  "private": true,
   "version": "1.0.0",
+  "license": "MIT",
+  "author": "Alex Usov <web.usov@ya.ru>",
   "type": "module",
   "workspaces": [
     "apps/*"
