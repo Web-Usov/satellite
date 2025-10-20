@@ -2,10 +2,12 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
+const packageJson = require('./package.json');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 const N2YO_API_KEY = process.env.N2YO_API_KEY;
+const APP_VERSION = process.env.APP_VERSION || packageJson.version || 'dev';
 
 app.use(cors());
 app.use(express.json());
@@ -14,7 +16,17 @@ app.get('/health', (req, res) => {
   res.json({ 
     status: 'ok', 
     timestamp: new Date().toISOString(),
-    apiKeyConfigured: !!N2YO_API_KEY 
+    apiKeyConfigured: !!N2YO_API_KEY,
+    version: APP_VERSION
+  });
+});
+
+app.get('/version', (req, res) => {
+  res.json({
+    name: packageJson.name || 'satellite-server',
+    version: APP_VERSION,
+    description: packageJson.description || 'N2YO API Proxy Server',
+    environment: process.env.NODE_ENV || 'production'
   });
 });
 
@@ -73,8 +85,10 @@ app.use((req, res) => {
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Proxy server running on port ${PORT}`);
+  console.log(`📦 Version: ${APP_VERSION}`);
   console.log(`✅ API Key configured: ${!!N2YO_API_KEY}`);
   console.log(`📡 Health check: http://localhost:${PORT}/health`);
+  console.log(`🔖 Version info: http://localhost:${PORT}/version`);
 });
 
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Server Build and Push Script
+# Client Build and Push Script
 set -e
 
 # Цвета для вывода
@@ -9,8 +9,22 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
-# Определяем корень проекта (ищем pnpm-workspace.yaml)
+# Определяем директорию скрипта
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Загружаем переменные из .env файла если он существует
+ENV_FILE="$SCRIPT_DIR/.env"
+if [ -f "$ENV_FILE" ]; then
+    echo -e "${GREEN}📄 Загрузка конфигурации из .env...${NC}"
+    set -a
+    source "$ENV_FILE"
+    set +a
+else
+    echo -e "${YELLOW}⚠️  Файл .env не найден в $SCRIPT_DIR${NC}"
+    echo -e "${YELLOW}   Скопируйте .env.example в .env и настройте переменные${NC}\n"
+fi
+
+# Определяем корень проекта (ищем pnpm-workspace.yaml)
 PROJECT_ROOT="$SCRIPT_DIR"
 
 while [[ "$PROJECT_ROOT" != "/" ]]; do
@@ -26,11 +40,11 @@ if [[ ! -f "$PROJECT_ROOT/pnpm-workspace.yaml" ]]; then
 fi
 
 # Конфигурация
-DOCKER_USERNAME="webusov"
-IMAGE_NAME="satellite-server"
-PACKAGE_JSON="$PROJECT_ROOT/apps/server/package.json"
-DOCKERFILE="$PROJECT_ROOT/apps/server/Dockerfile"
-CONTEXT="$PROJECT_ROOT/apps/server"
+DOCKER_USERNAME="${DOCKER_USERNAME:-webusov}"
+IMAGE_NAME="satellite-client"
+PACKAGE_JSON="$PROJECT_ROOT/apps/client/package.json"
+DOCKERFILE="$PROJECT_ROOT/apps/client/Dockerfile"
+CONTEXT="$PROJECT_ROOT"
 FULL_IMAGE="${DOCKER_USERNAME}/${IMAGE_NAME}"
 
 if [[ ! -f "$PACKAGE_JSON" ]]; then
@@ -44,7 +58,7 @@ if [[ -z "$VERSION" ]]; then
     exit 1
 fi
 
-echo -e "${GREEN}🚀 Сборка и публикация Proxy Server образа${NC}"
+echo -e "${GREEN}🚀 Сборка и публикация Frontend образа${NC}"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "Image: ${FULL_IMAGE}"
 echo "Tags: latest, v${VERSION}"
@@ -65,12 +79,32 @@ if ! grep -q "index.docker.io" ~/.docker/config.json 2>/dev/null; then
 fi
 echo -e "${GREEN}✅ Авторизация подтверждена${NC}"
 
+# Проверка .env.prod
+echo -e "\n${YELLOW}📋 Проверка .env.prod...${NC}"
+ENV_PROD_FILE="${PROJECT_ROOT}/.env.prod"
+if [[ ! -f "$ENV_PROD_FILE" ]]; then
+    echo -e "${RED}❌ Ошибка: не найден файл .env.prod${NC}"
+    echo -e "${YELLOW}Создайте файл .env.prod в корне проекта${NC}"
+    exit 1
+fi
+echo -e "${GREEN}✅ Файл .env.prod найден${NC}"
+
+# Получаем метаданные для сборки
+BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+VCS_REF=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
+
 # Сборка образа
 echo -e "\n${YELLOW}🔨 Сборка образа...${NC}"
+echo "  Версия: v${VERSION}"
+echo "  Git commit: ${VCS_REF}"
+echo "  Дата сборки: ${BUILD_DATE}"
 docker build \
     -f "${DOCKERFILE}" \
     -t "${FULL_IMAGE}:latest" \
     -t "${FULL_IMAGE}:v${VERSION}" \
+    --build-arg VERSION="${VERSION}" \
+    --build-arg BUILD_DATE="${BUILD_DATE}" \
+    --build-arg VCS_REF="${VCS_REF}" \
     --platform linux/amd64 \
     "${CONTEXT}"
 
@@ -92,14 +126,17 @@ docker push "${FULL_IMAGE}:v${VERSION}"
 
 if [ $? -eq 0 ]; then
     echo -e "\n${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-    echo -e "${GREEN}✅ Proxy образ успешно опубликован!${NC}"
+    echo -e "${GREEN}✅ Frontend образ успешно опубликован!${NC}"
     echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo -e "\n${YELLOW}📋 Использование:${NC}"
     echo "  docker pull ${FULL_IMAGE}:latest"
-    echo "  docker run -p 3001:3001 -e N2YO_API_KEY=your_key ${FULL_IMAGE}:latest"
+    echo "  docker run -p 80:80 ${FULL_IMAGE}:latest"
     echo ""
     echo -e "${YELLOW}🔗 Docker Hub:${NC}"
     echo "  https://hub.docker.com/r/${FULL_IMAGE}"
+    echo ""
+    echo -e "${YELLOW}🚀 Деплой в Portainer:${NC}"
+    echo "  ./deploy.sh"
 else
     echo -e "${RED}❌ Ошибка при публикации образа${NC}"
     exit 1

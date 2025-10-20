@@ -97,7 +97,6 @@ export const CalculateButton = () => {
 
   const progressPercent = totalRequests > 0 ? (progress / totalRequests) * 100 : 0;
 
-  const sourceCount = calculationMode === 'input-tle' ? userTLEs.length : satellites.length;
   const canCalculate = calculationMode === 'input-tle'
     ? userTLEs.length > 0 && stations.length > 0
     : satellites.length > 0 && stations.length > 0;

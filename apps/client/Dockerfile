@@ -1,6 +1,10 @@
 # Multi-stage build for Client (Frontend)
 FROM node:22-alpine AS builder
 
+ARG VERSION=dev
+ARG BUILD_DATE
+ARG VCS_REF
+
 WORKDIR /workspace
 
 # Устанавливаем pnpm
@@ -28,8 +32,26 @@ COPY apps/client ./apps/client/
 WORKDIR /workspace/apps/client
 RUN pnpm build --mode prod
 
+# Создаем файл версии
+RUN echo "{\"name\":\"satellite-client\",\"version\":\"${VERSION}\",\"buildDate\":\"${BUILD_DATE}\",\"gitCommit\":\"${VCS_REF}\",\"description\":\"Satellite Pass Predictor - Frontend\"}" > dist/version.json
+
 # Production stage
 FROM nginx:alpine
+
+ARG VERSION=dev
+ARG BUILD_DATE
+ARG VCS_REF
+
+LABEL org.opencontainers.image.title="Satellite Pass Predictor - Frontend" \
+      org.opencontainers.image.description="React Frontend for Satellite Pass Predictor" \
+      org.opencontainers.image.version="${VERSION}" \
+      org.opencontainers.image.created="${BUILD_DATE}" \
+      org.opencontainers.image.revision="${VCS_REF}" \
+      org.opencontainers.image.authors="webusov" \
+      org.opencontainers.image.vendor="webusov" \
+      maintainer="webusov"
+
+ENV APP_VERSION=${VERSION}
 
 # Копируем собранные файлы
 COPY --from=builder /workspace/apps/client/dist /usr/share/nginx/html

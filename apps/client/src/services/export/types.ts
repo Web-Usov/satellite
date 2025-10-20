@@ -1,4 +1,4 @@
-import type { PassData, StationSchedule } from '../../types';
+import type { StationSchedule } from '../../types';
 
 export type ExportFormat = 'csv' | 'json' | 'xlsx' | 'ical';
 

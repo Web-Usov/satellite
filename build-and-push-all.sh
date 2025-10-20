@@ -24,9 +24,9 @@ START_TIME=$(date +%s)
 
 # 1. Server
 echo -e "${YELLOW}[1/2] Публикация Server...${NC}\n"
-cd apps/server
+cd apps/server/scripts
 ./build-and-push.sh
-cd ../..
+cd ../../..
 
 echo ""
 echo -e "${GREEN}✅ Server опубликован${NC}"
@@ -34,9 +34,9 @@ echo ""
 
 # 2. Client
 echo -e "${YELLOW}[2/2] Публикация Client...${NC}\n"
-cd apps/client
+cd apps/client/scripts
 ./build-and-push.sh
-cd ../..
+cd ../../..
 
 echo ""
 echo -e "${GREEN}✅ Client опубликован${NC}"
@@ -71,4 +71,3 @@ echo -e "\n${YELLOW}📝 Обновите docker-compose.yml:${NC}"
 echo "  Замените 'build' на 'image: ${DOCKER_USERNAME}/satellite-...:latest'"
 
 echo ""
-
