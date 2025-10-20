@@ -34,7 +34,19 @@ jobs:
             --exclude=.git \
             --exclude=dist \
             --exclude=.env* \
-            .
+            --exclude=*.tar.gz \
+            apps/ \
+            .github/ \
+            *.json \
+            *.md \
+            *.yml \
+            *.yaml \
+            *.sh \
+            *.js \
+            *.ts \
+            LICENSE \
+            docker-compose*.yml \
+            .dockerignore
             
       - name: Create Release
         uses: softprops/action-gh-release@v2
