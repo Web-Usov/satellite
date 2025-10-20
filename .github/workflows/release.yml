@@ -43,10 +43,14 @@ jobs:
             *.yaml \
             *.sh \
             *.js \
-            *.ts \
             LICENSE \
             docker-compose*.yml \
-            .dockerignore
+            .dockerignore \
+            .gitignore \
+            pnpm-workspace.yaml \
+            tsconfig*.json \
+            eslint.config.js \
+            public/
             
       - name: Create Release
         uses: softprops/action-gh-release@v2
